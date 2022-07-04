@@ -6,4 +6,6 @@ def sum_arr(arr)
   # arr.sum() # всё можно заменить на эту строку
 end
 
-print sum_arr([1, 2, 3, 4, 5, -12, 143, 3.43, -2.54, 000_000])
+puts sum_arr(gets.split().map(&:to_f)) # может быть NoMethodError (Method invocation 'split' may produce 'NoMethodError' )
+# на удивление в ruby если не задавать параметры для split, то ему не важно " ", ", ", "; " как минимум)
+puts sum_arr([1, 2, 3, 4, 5, -12, 143, 3.43, -2.54, 000_000])
