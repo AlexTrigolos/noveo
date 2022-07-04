@@ -12,7 +12,12 @@ begin
   if our_arr.all?{|elem| Float(elem).class == Float}
     puts sum_arr(our_arr.map(&:to_f)) # может быть NoMethodError (Method invocation 'split' may produce 'NoMethodError' )
   end
-rescue
-  puts "Your data is a very big шняга, в общем не только числа :D"
+rescue Exception => e
+  if e.class == ArgumentError
+    puts "Your data is a very big шняга, в общем не числа :D"
+  else
+    puts "Ошибка #{e.class}"
+  end
+ensure
+  puts sum_arr([1, 2, 3, 4, 5, -12, 143, 3.43, -2.54, 000_000])
 end
-puts sum_arr([1, 2, 3, 4, 5, -12, 143, 3.43, -2.54, 000_000])
