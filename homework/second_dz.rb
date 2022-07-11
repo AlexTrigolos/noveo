@@ -20,11 +20,7 @@ end
 def second_task(str)
   res_str = ''
   str.chars.each do |elem|
-    if elem == '#'
-      res_str = res_str[0..-2]
-    else
-      res_str << elem
-    end
+    elem == '#' ? res_str.chop! : res_str << elem
   end
   res_str
 end
