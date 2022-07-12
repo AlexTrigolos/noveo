@@ -46,3 +46,41 @@ p set.delete?(3) # с знаком ? возвращает nil если тако�
 p set.disjoint? Set[3, 6] # true если нет ни одного совпадений, intersect? возвращает true если есть хоть одно совпадение
 p set.proper_subset? Set[1, 2, 4, 3] # true если первое подмножество второго, для proper_superset наоборот (subset?, superset?)
 p set.divide {|i, j| (i - j).abs == 1} # создает подмножества по условию
+puts "-----------------TASK-3----------------"
+def string_to_hash(str)
+  hash = Hash.new
+  str.split.each do |elem|
+    key, value = elem.split('=')
+    hash[key.to_sym] = value.to_i
+  end
+  hash
+end
+
+def ranks(arr)
+  res = []
+  buf = {}
+  i = 0
+  arr.each do |elem|
+    buf[i] = elem
+    i += 1
+  end
+  last = nil
+  i = 0
+  dop = 0
+  buf.sort_by {|_key, value| value}.reverse.to_h.each do |key, value|
+    if last == value
+      dop += 1
+      res[key] = i
+    else
+      i += 1 + dop
+      dop = 0
+      res[key] = i
+    end
+    last = value
+  end
+  res
+end
+
+p string_to_hash("a=1 b=2 c=3")
+p ranks([9, 3, 6, 10])
+p ranks([3, 3, 3, 3, 3, 5, 1])
