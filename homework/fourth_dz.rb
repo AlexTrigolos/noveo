@@ -113,7 +113,7 @@ class Vector
     end
     index = 0
     res_dot = 0
-    self.vector.each do |elem| # да можно без self, но я так хочу и считаю так нагляднее хотя хз
+    vector.each do |elem| # да можно без self, но я так хочу и считаю так нагляднее хотя хз
       res_dot += elem * other_vec[index]
       index += 1
     end
@@ -122,7 +122,7 @@ class Vector
 
   def norm
     res_norm = 0
-    self.vector.each { |elem| res_norm += elem ** 2 }
+    vector.each { |elem| res_norm += elem ** 2 }
     Math.sqrt(res_norm)
   end
 
