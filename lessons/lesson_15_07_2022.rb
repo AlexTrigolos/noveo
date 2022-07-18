@@ -10,26 +10,28 @@
 
 class HashWithIndifferentAccess < Hash
   def [](key) # key == :a => 'a'; key == 'a' => 'a'; real_key = :a
-    key = key.is_a?(Symbol) ? key : key.to_sym
+    key = key.is_a?(String) ? key.to_sym : key
     self.each do |skey, svalue|
-      if skey == key.to_sym
-        return svalue
-      end
+      return svalue if skey == key
     end
     nil
   end
 end
 
+
 class Hash
   def with_indifferent_access #: return HashWithIndifferentAccess
-    new = HashWithIndifferentAccess.new(self)
-    self.each { |key, value| new[key] = value}
-    new
+    # new = HashWithIndifferentAccess.new(0)
+    # self.each { |key, value| new[key] = value}
+    # new
+    HashWithIndifferentAccess[self]
   end
 end
 
+# simple_hash = { a: 'apple', 'b': 1 } # simple_hash.class => Hash
+# hash_with_indif_acc = { a: 'apple', 'b': 1 }.with_indifferent_access # hash_with_indif_acc.class => HashWithIndifferentAccess
 
-simple_hash = Hash[a: 'apple', 'b': 1] # simple_hash.class => Hash
+simple_hash = Hash[a: 'apple', 'b': 1, 1 => 6] # simple_hash.class => Hash
 p simple_hash
 p simple_hash.class
 hash_with_indif_acc = simple_hash.with_indifferent_access # hash_with_indif_acc.class => HashWithIndifferentAccess
@@ -41,6 +43,10 @@ p hash_with_indif_acc['b']
 p hash_with_indif_acc[:b]
 p hash_with_indif_acc['c']
 p hash_with_indif_acc[:c]
+p hash_with_indif_acc[1]
+
+# hash_with_indif_acc.get_key(:a) == hash_with_indif_acc[:a] == hash_with_indif_acc.get_key('a')
+# hash_with_indif_acc.get_key('b') == hash_with_indif_acc['b'] == hash_with_indif_acc.get_key(:b)
 
 # //////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -67,7 +73,7 @@ class Vector
     @vector = vector
   end
 
-  def check(other_vec)
+  def same_size?(other_vec)
     vector.size == other_vec.vector.size
   end
 
@@ -76,9 +82,7 @@ class Vector
   end
 
   def add(other_vec)
-    unless check(other_vec)
-      return nil
-    end
+    return nil unless same_size?(other_vec)
     index = 0
     res_vec = Vector.new(vector.dup)
     res_vec.vector.each do |elem|
@@ -89,9 +93,7 @@ class Vector
   end
 
   def subtract(other_vec)
-    unless check(other_vec)
-      return nil
-    end
+    return nil unless same_size?(other_vec)
     index = 0
     res_vec = Vector.new(vector.dup)
     res_vec.vector.each do |elem|
@@ -102,12 +104,10 @@ class Vector
   end
 
   def dot(other_vec)
-    unless check(other_vec)
-      return nil
-    end
+    return nil unless same_size?(other_vec)
     index = 0
     res_dot = 0
-    self.vector.each do |elem| # да можно без self, но я так хочу и считаю так нагляднее хотя хз
+    vector.each do |elem| # да можно без self, но я так хочу и считаю так нагляднее хотя хз
       res_dot += elem * other_vec[index]
       index += 1
     end
@@ -116,7 +116,7 @@ class Vector
 
   def norm
     res_norm = 0
-    self.vector.each { |elem| res_norm += elem ** 2 }
+    vector.each { |elem| res_norm += elem ** 2 }
     Math.sqrt(res_norm)
   end
 
@@ -135,3 +135,4 @@ p a.dot(b)
 p a.norm
 p a.add(c)
 p a.to_s
+
