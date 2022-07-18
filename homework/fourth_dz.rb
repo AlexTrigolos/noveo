@@ -10,7 +10,7 @@
 
 class HashWithIndifferentAccess < Hash
   def [](key) # key == :a => 'a'; key == 'a' => 'a'; real_key = :a
-    key = key.is_a?(Symbol) ? key : key.to_sym
+    # key = key.is_a?(Symbol) ? key : key.to_sym
     self.each do |skey, svalue|
       if skey == key.to_sym
         return svalue
@@ -19,6 +19,7 @@ class HashWithIndifferentAccess < Hash
     nil
   end
 end
+
 
 class Hash
   def with_indifferent_access #: return HashWithIndifferentAccess
