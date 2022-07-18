@@ -14,7 +14,6 @@ class PaginationHelper
   end
 
   def page_item_count(page)
-    # print page, array.size / page_size, array.size % page_size
     if page < 0
       -1
     elsif array.size / page_size > page
