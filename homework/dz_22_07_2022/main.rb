@@ -1,8 +1,9 @@
 require_relative 'binary_tree'
 require_relative 'version_manager'
+require_relative 'draw_tree'
 
 tree = BinaryTree.new
-puts tree
+puts DrawTree.new(tree)
 tree.add(10) #=> 10
 tree.add(20) #=> 20
 tree.add(15) #=> 15
@@ -22,15 +23,19 @@ tree.add(22) #=> 22
 tree.add(100) #=> 100
 tree.add(99) #=> 99
 tree.add(101) #=> 101
-puts tree
+puts DrawTree.new(tree)
 tree.delete(10) #=> 10
-puts "delete 10", tree
+puts "delete 10", DrawTree.new(tree)
 tree.delete(99) #=> 99
-puts "delete 99", tree
+puts "delete 99", DrawTree.new(tree)
 tree.delete(11111111) #=> nil
-puts "delete 11111111", tree
+puts "delete 11111111", DrawTree.new(tree)
 tree.delete(25) #=> 25
-puts "delete 25", tree
+puts "delete 25", DrawTree.new(tree)
+tree.delete(5) #=> 5
+puts "delete 5", DrawTree.new(tree)
+tree.delete(6) #=> 6
+puts "delete 6", DrawTree.new(tree)
 
 puts tree.find(20).value #=> 20
 puts tree.find(26).class #=> nil
