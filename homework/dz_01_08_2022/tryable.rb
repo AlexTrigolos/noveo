@@ -1,9 +1,7 @@
 module Tryable
   def try(&block)
-    begin
-      block.call(self)
+    block.call(self)
     rescue NoMethodError => err
-      return nil
-    end
+      nil
   end
 end
