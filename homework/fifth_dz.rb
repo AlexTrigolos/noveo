@@ -125,6 +125,32 @@ class LinkedList
     false
   end
 
+  def reverse!
+    if !@node.nil? and !@node.nxt.nil?
+      pred = nil
+      now = @node
+      post = @node.nxt
+      until now.nil?
+        now.nxt = pred
+        pred = now
+        now = post
+        post = post.nxt unless post.nil?
+      end
+      @node = pred
+    end
+    self
+  end
+
+  def reverse
+    new_linked_list = LinkedList.new
+    now = @node
+    until now.nil?
+      new_linked_list.append(now)
+      now = now.nxt
+    end
+    new_linked_list.reverse!
+  end
+
   def to_s
     str = '('
     item = @node
@@ -152,3 +178,6 @@ list.delete(10)
 puts "#{list} => (3, 15, 5, 25)"
 puts "#{list.exists?(25)} => true"
 puts "#{list.exists?(24)} => false"
+puts "#{list.reverse} => (25, 5, 15, 3)"
+puts "#{list.reverse!} => (25, 5, 15, 3)"
+puts "#{list} => (25, 5, 15, 3)"
