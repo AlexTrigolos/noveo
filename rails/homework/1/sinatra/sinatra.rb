@@ -40,5 +40,7 @@ end
 delete '/posts/:id' do
   id = params['id'].to_i
   post = posts.delete_at(id)
-  return post.to_json
+  return post.to_json unless post.nil?
+
+  halt 404, 'Post not found'
 end
