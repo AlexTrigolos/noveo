@@ -1,46 +1,91 @@
 # frozen_string_literal: true
 
 require 'sinatra'
+require 'csv'
 
-posts = [{ title: 'First Post', body: 'content of first post' },
-         { title: 'Second Post', body: 'content of second post' }]
+PATH = './rails/homework/1/sinatra/products.csv'
+PATH_PUT = './rails/homework/1/sinatra/products_put.csv'
+PATH_DELETE = './rails/homework/1/sinatra/products_delete.csv'
 
 get '/' do
-  'My work in /posts'
+  'My work in /products'
 end
 
-get '/posts' do
-  return posts.to_json
+get '/products' do
+  products = ''
+  CSV.open(PATH) do |csv|
+    csv.each { |a, b, c, d| products += "#{a}, #{b}, #{c}, #{d}<br>" }
+  end
+  return products
 end
 
-get '/posts/:id' do
-  return posts[params['id'].to_i].to_json
+get '/products/:id' do
+  index = -1
+  CSV.open(PATH) do |csv|
+    csv.each do |a, b, c, d|
+      return "#{a}, #{b}, #{c}, #{d}\n" if index == params['id'].to_i
+
+      index += 1
+    end
+    halt 404, 'Product not found'
+  end
 end
 
 def get_body(req)
   req.body.rewind
-  JSON.parse(req.body.read)
+  req.body.read
 end
 
-post '/posts' do
+post '/products' do
   body = get_body(request)
-  new_post = { title: body['title'], body: body['body'] }
-  posts.push(new_post)
-  return new_post.to_json
+  new_product = body.split(',')
+  CSV.open('./rails/homework/1/sinatra/products.csv', 'a') do |csv|
+    csv << new_product
+  end
+  return new_product.join(', ')
 end
 
-put '/posts/:id' do
+put '/products/:id' do
   id = params['id'].to_i
   body = get_body(request)
-  posts[id][:title] = body['title']
-  posts[id][:body] = body['body']
-  return posts[id].to_json
+  update_product = body.split(',')
+  csv_read = CSV.open(PATH)
+  csv_put = CSV.open(PATH_PUT, 'w')
+  index = -1
+  csv_read.each do |elem|
+    csv_put << if index != id
+                 elem
+               else
+                 update_product
+               end
+    index += 1
+  end
+  csv_read.close
+  csv_put.close
+  File.delete(PATH)
+  File.rename(PATH_PUT, PATH)
+  return update_product.join(', ')
 end
 
-delete '/posts/:id' do
+delete '/products/:id' do
   id = params['id'].to_i
-  post = posts.delete_at(id)
-  return post.to_json unless post.nil?
+  csv_read = CSV.open(PATH)
+  csv_delete = CSV.open(PATH_DELETE, 'w')
+  index = -1
+  deleted_product = nil
+  csv_read.each do |elem|
+    if index != id
+      csv_delete << elem
+    else
+      deleted_product = elem
+    end
+    index += 1
+  end
+  csv_read.close
+  csv_delete.close
+  File.delete(PATH)
+  File.rename(PATH_DELETE, PATH)
+  return deleted_product.join(', ') unless deleted_product.nil?
 
-  halt 404, 'Post not found'
+  halt 404, 'Product not found'
 end
