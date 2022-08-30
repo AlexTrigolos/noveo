@@ -42,8 +42,4 @@ our_app.get '/hello' do
   [200, {}, ["Hello from App. Params: #{params}"]]
 end
 
-our_app.post '/create' do
-  [201, {}, request.body]
-end
-
 Rack::Handler::Puma.run(our_app)
