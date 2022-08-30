@@ -1,5 +1,5 @@
 require 'rack'
-require 'puma'
+require 'rack/handler/puma'
 
 class WebServer
   def call(env)
