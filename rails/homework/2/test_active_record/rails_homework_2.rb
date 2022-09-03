@@ -67,15 +67,9 @@ class User < ActiveRecord::Base
   private
 
   def update_subscriptions
-    Subscription.find_each do |sub|
-      if sub.user_id == id
-        if active
-          sub.active!
-        else
-          sub.disabled!
-        end
-      end
-    end
+    return if active
+
+    Subscription.find_each { |sub| sub.disabled! if sub.user_id == id }
   end
 end
 
