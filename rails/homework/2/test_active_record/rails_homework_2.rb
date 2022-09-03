@@ -17,7 +17,7 @@ ActiveRecord::Base.logger = ActiveSupport::Logger.new(STDOUT)
 class Newspaper < ActiveRecord::Base
   has_many :subscriptions, as: :subscribable
 
-  enum newspaper_type: [:newspaper_type1, :newspaper_type2, :newspaper_type3]
+  enum newspaper_type: %i[newspaper_type1 newspaper_type2 newspaper_type3]
 
   validates :name, presence: true, uniqueness: true
   validates :newspaper_type, inclusion: { in: newspaper_types.keys }
@@ -39,7 +39,7 @@ CreateNewspaperTable.migrate(:up) unless ActiveRecord::Base.connection.table_exi
 class Podcast < ActiveRecord::Base
   has_many :subscriptions, as: :subscribable
 
-  enum podcast_type: [:podcast_type1, :podcast_type2, :podcast_type3]
+  enum podcast_type: %i[podcast_type1 podcast_type2 podcast_type3]
 
   validates :name, presence: true, uniqueness: true
   validates :podcast_type, inclusion: { in: podcast_types.keys }
@@ -61,6 +61,22 @@ class User < ActiveRecord::Base
   has_many :subscriptions
 
   validates :username, presence: true, uniqueness: true
+
+  before_update :update_subscriptions
+
+  private
+
+  def update_subscriptions
+    Subscription.find_each do |sub|
+      if sub.user_id == id
+        if active
+          sub.active!
+        else
+          sub.disabled!
+        end
+      end
+    end
+  end
 end
 
 class CreateUserTable < ActiveRecord::Migration[7.0]
@@ -72,11 +88,24 @@ class CreateUserTable < ActiveRecord::Migration[7.0]
   end
 end
 
-CreateUserTable.migrate(:up) unless ActiveRecord::Base.connection.table_exists?('users')
+class AddActiveToUser < ActiveRecord::Migration[7.0]
+  def change
+    add_column :users, :active, :boolean, default: true, null: false
+  end
+end
+
+unless ActiveRecord::Base.connection.table_exists?('users')
+  CreateUserTable.migrate(:up)
+  AddActiveToUser.migrate(:up)
+end
 
 class Subscription < ActiveRecord::Base
   belongs_to :subscribable, polymorphic: true
   belongs_to :user
+
+  enum subscription_status: %i[active disabled inactive]
+
+  validates :subscription_status, inclusion: { in: subscription_statuses.keys }
 end
 
 class CreateSubscriptionTable < ActiveRecord::Migration[7.0]
@@ -89,9 +118,17 @@ class CreateSubscriptionTable < ActiveRecord::Migration[7.0]
   end
 end
 
-# rubocop:enable Style/Documentation
+class AddStatusToSubscription < ActiveRecord::Migration[7.0]
+  def change
+    add_column :subscriptions, :subscription_status, :integer, default: 0, null: false
+  end
+end
 
-CreateSubscriptionTable.migrate(:up) unless ActiveRecord::Base.connection.table_exists?('subscriptions')
+# rubocop:enable Style/Documentation
+unless ActiveRecord::Base.connection.table_exists?('subscriptions')
+  CreateSubscriptionTable.migrate(:up)
+  AddStatusToSubscription.migrate(:up)
+end
 
 # CreateSubscriptionTable.migrate(:down)
 # CreatePodcastTable.migrate(:down)
@@ -105,6 +142,7 @@ user = User.new(username: 'alex')
 user.save
 User.create!(username: 'mary')
 User.create(username: 'alex')
+# user.update(active: true)
 
 Newspaper.destroy_all
 Newspaper.create!(name: 'first_newspaper', newspaper_type: 0)
@@ -117,14 +155,15 @@ Podcast.create!(name: 'second_podcast', podcast_type: 1)
 # Podcast.create(name: 'third_podcast', podcast_type: 2222)
 
 # Subscription.create!(newspaper: Newspaper.first, user: User.first, podcast: Podcast.first)
-# Subscription.create!(newspaper: Newspaper.second, podcast: Podcast.second, user: User.second)
-# # Subscription.create(newspaper: Newspaper.third, podcast: Podcast.third, user: User.third)
-# Subscription.create!(newspaper: Newspaper.first, user: User.second, podcast: Podcast.first)
 Subscription.create!(subscribable: Newspaper.first, user: User.first)
-Subscription.create!(subscribable: Podcast.first, user: User.first)
-
-# first_subs = Subscription.first.as_json(only: %i[id user_id newspaper_id podcast_id])
-# third_subs = Subscription.third.as_json(only: %i[id user_id newspaper_id podcast_id])
-# p first_subs, third_subs
-# p User.find_by(id: first_subs['user_id'].to_i)
-# p User.find_by(id: third_subs['user_id'].to_i)
+Subscription.create!(subscribable: Podcast.first, user: User.second)
+Subscription.second.disabled!
+p User.first.as_json
+User.first.update(active: false)
+p User.first.as_json
+p Subscription.first.as_json
+p Subscription.second.as_json
+User.first.update(active: true)
+p User.first.as_json
+p Subscription.first.as_json
+p Subscription.second.as_json
