@@ -70,7 +70,6 @@ end
 private
 
 def get_body_data(req)
-  req.body.rewind
   req.body.read.split(',')
 end
 
