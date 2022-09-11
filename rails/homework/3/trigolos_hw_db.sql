@@ -40,11 +40,10 @@ SELECT * FROM books
 ORDER BY copies_sold desc
 LIMIT 3
 
-SELECT authors.firstname, authors.lastname, authors.age, (
-  SELECT COUNT(*) as author_count FROM books 
-  WHERE authors.id = books.author_id
-) as books_count
-FROM authors
+SELECT authors.firstname, authors.lastname, authors.age, COUNT(DISTINCT books.id) as books_count
+FROM authors INNER JOIN books
+ON authors.id = books.author_id
+GROUP BY authors.firstname, authors.lastname, authors.age;
 
 DROP TABLE books;
 DROP TABLE authors;
