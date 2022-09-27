@@ -5,4 +5,8 @@ class Circle
     @radius = radius
     @square = radius * radius * Math::PI
   end
+
+  def <=>(other)
+    @square <=> other.square
+  end
 end

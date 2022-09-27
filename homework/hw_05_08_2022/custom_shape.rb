@@ -4,4 +4,8 @@ class CustomShape
   def initialize(square)
     @square = square
   end
+
+  def <=>(other)
+    @square <=> other.square
+  end
 end

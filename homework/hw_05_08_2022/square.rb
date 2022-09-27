@@ -5,4 +5,8 @@ class Square
     @side_len = side_len
     @square = side_len * side_len
   end
+
+  def <=>(other)
+    @square <=> other.square
+  end
 end

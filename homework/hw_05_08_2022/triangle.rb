@@ -6,4 +6,8 @@ class Triangle
     @base = base
     @square = height * base / 2
   end
+
+  def <=>(other)
+    @square <=> other.square
+  end
 end

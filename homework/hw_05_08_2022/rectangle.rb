@@ -6,5 +6,9 @@ class Rectangle
     @width = width
     @square = length * width
   end
+
+  def <=>(other)
+    @square <=> other.square
+  end
 end
 
