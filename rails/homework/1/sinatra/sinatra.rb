@@ -3,7 +3,7 @@
 require 'sinatra'
 require 'csv'
 
-require_relative 'product'
+require_relative 'products'
 
 PATH = './rails/homework/1/sinatra/products.csv'
 
@@ -12,19 +12,18 @@ get '/' do
 end
 
 get '/products' do
-  products = Product.new
+  products = Products.new
   CSV.foreach(PATH) do |row|
     products.push(row)
   end
   products.to_s
-  return products.to_s
 end
 
 get '/products/:id' do
   index = 0
-  product = Product.new
+  product = Products.new
   CSV.foreach(PATH, headers: true) do |row|
-    if index == params['id'].to_i
+    if index == params['id'].to_i # with_index доступ по индексу
       product.push(row.values_at(0..3))
       return product.to_s
     end
@@ -38,24 +37,24 @@ post '/products' do
   CSV.open('./rails/homework/1/sinatra/products.csv', 'a') do |csv|
     csv << new_product
   end
-  return new_product.join(', ')
+  new_product.join(', ')
 end
 
 put '/products/:id' do
-  table = table_or404
+  table = table!
 
   update_product = get_body_data(request)
 
   table[params['id'].to_i] = update_product
 
   write_table(table)
-  return update_product.join(', ')
+  update_product.join(', ')
 end
 
 delete '/products/:id' do
-  table = table_or404
+  table = table!
 
-  del = Product.new
+  del = Products.new
   del.push(table[params['id'].to_i].values_at(0..3))
 
   was_deleted = false
@@ -64,7 +63,7 @@ delete '/products/:id' do
   end
 
   write_table(table)
-  return del.to_s
+  del.to_s
 end
 
 private
@@ -79,7 +78,7 @@ def write_table(table)
   end
 end
 
-def table_or404
+def table!
   table = CSV.table(PATH, headers: true)
 
   return halt 404, 'Product not found' if table.size < params['id'].to_i + 1

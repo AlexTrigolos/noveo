@@ -1,19 +1,19 @@
-class Product
-  attr_accessor :product
+class Products
+  attr_accessor :products
 
   def initialize
     super
-    @product = []
+    @products = []
   end
 
   def push(param)
-    @product.push(param)
+    @products.push(param)
   end
 
   def to_s
     result = ''
     string = 0
-    @product.each do |elem|
+    @products.each do |elem|
       result += '<br>' unless string.zero?
       index = 0
       elem.each do |el|
