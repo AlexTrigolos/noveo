@@ -8,7 +8,7 @@ module IndifferentAccessable
       else
         super(key)
       end
-    rescue Exception => e
+    rescue StandardError
       super(key)
     end
   end

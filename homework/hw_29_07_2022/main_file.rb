@@ -16,14 +16,14 @@
 require_relative 'modules/capitalize_each_word' # comment this for 2 part
 
 class String # comment this for 2 part
-  include Capitalize_Each_Word # comment this for 2 part
+  include CapitalizeEachWord # comment this for 2 part
 end # comment this for 2 part
 puts 'string one'.capitalize_each_word # comment this for 2 part
 puts 'string two'.capitalize_each_word # comment this for 2 part
 # start 2 part
 str1 = 'string one'
 str2 = 'string two'
-str1.singleton_class.include(Capitalize_Each_Word)
+str1.singleton_class.include(CapitalizeEachWord)
 puts str1.capitalize_each_word #=> "String One"
 sleep(1) # для последовательного отображения
 puts str2.capitalize_each_word #=> NoMethodError

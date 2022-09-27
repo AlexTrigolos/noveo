@@ -40,7 +40,7 @@ puts Database::ConnectionPool.instance.object_id #=> object_id = 123
 # str1.capitalize_each_word #=> "String One"
 # str2.capitalize_each_word #=> NoMethodError
 
-module Capitalize_Each_Word
+module CapitalizeEachWord
   def capitalize_each_word
     self.split.map {|elem| elem.capitalize}.join(' ')
   end
@@ -56,6 +56,6 @@ end
 
 str1 = 'string one'
 str2 = 'string two'
-str1.singleton_class.include(Capitalize_Each_Word)
+str1.singleton_class.include(CapitalizeEachWord)
 puts str1.capitalize_each_word #=> "String One"
 puts str2.capitalize_each_word #=> NoMethodError
