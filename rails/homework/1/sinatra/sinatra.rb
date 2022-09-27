@@ -3,89 +3,85 @@
 require 'sinatra'
 require 'csv'
 
+require_relative 'products'
+
 PATH = './rails/homework/1/sinatra/products.csv'
-PATH_PUT = './rails/homework/1/sinatra/products_put.csv'
-PATH_DELETE = './rails/homework/1/sinatra/products_delete.csv'
 
 get '/' do
   'My work in /products'
 end
 
 get '/products' do
-  products = ''
-  CSV.open(PATH) do |csv|
-    csv.each { |a, b, c, d| products += "#{a}, #{b}, #{c}, #{d}<br>" }
+  products = Products.new
+  CSV.foreach(PATH) do |row|
+    products.push(row)
   end
-  return products
+  products.to_s
 end
 
 get '/products/:id' do
-  index = -1
-  CSV.open(PATH) do |csv|
-    csv.each do |a, b, c, d|
-      return "#{a}, #{b}, #{c}, #{d}\n" if index == params['id'].to_i
-
-      index += 1
+  index = 0
+  product = Products.new
+  CSV.foreach(PATH, headers: true) do |row|
+    if index == params['id'].to_i # with_index доступ по индексу
+      product.push(row.values_at(0..3))
+      return product.to_s
     end
-    halt 404, 'Product not found'
+    index += 1
   end
-end
-
-def get_body(req)
-  req.body.rewind
-  req.body.read
+  halt 404, 'Product not found'
 end
 
 post '/products' do
-  body = get_body(request)
-  new_product = body.split(',')
+  new_product = get_body_data(request)
   CSV.open('./rails/homework/1/sinatra/products.csv', 'a') do |csv|
     csv << new_product
   end
-  return new_product.join(', ')
+  new_product.join(', ')
 end
 
 put '/products/:id' do
-  id = params['id'].to_i
-  body = get_body(request)
-  update_product = body.split(',')
-  csv_read = CSV.open(PATH)
-  csv_put = CSV.open(PATH_PUT, 'w')
-  index = -1
-  csv_read.each do |elem|
-    csv_put << if index != id
-                 elem
-               else
-                 update_product
-               end
-    index += 1
-  end
-  csv_read.close
-  csv_put.close
-  File.delete(PATH)
-  File.rename(PATH_PUT, PATH)
-  return update_product.join(', ')
+  table = table!
+
+  update_product = get_body_data(request)
+
+  table[params['id'].to_i] = update_product
+
+  write_table(table)
+  update_product.join(', ')
 end
 
 delete '/products/:id' do
-  id = params['id'].to_i
-  csv_read = CSV.open(PATH)
-  csv_delete = CSV.open(PATH_DELETE, 'w')
-  index = -1
-  deleted_product = nil
-  csv_read.each do |elem|
-    if index != id
-      csv_delete << elem
-    else
-      deleted_product = elem
-    end
-    index += 1
-  end
-  csv_read.close
-  csv_delete.close
-  File.delete(PATH)
-  File.rename(PATH_DELETE, PATH)
-  return deleted_product.join(', ') unless deleted_product.nil?
+  table = table!
 
-  halt 404, 'Product not found'
+  del = Products.new
+  del.push(table[params['id'].to_i].values_at(0..3))
+
+  was_deleted = false
+  table.delete_if do |w|
+    was_deleted = true if !was_deleted && w == table[params['id'].to_i]
+  end
+
+  write_table(table)
+  del.to_s
+end
+
+private
+
+def get_body_data(req)
+  req.body.read.split(',')
+end
+
+def write_table(table)
+  File.open(PATH, 'w') do |f|
+    f.write(table.to_csv)
+  end
+end
+
+def table!
+  table = CSV.table(PATH, headers: true)
+
+  return halt 404, 'Product not found' if table.size < params['id'].to_i + 1
+
+  table
 end
